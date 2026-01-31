@@ -13,7 +13,8 @@
   },
   "dependencies": {
     "express": "^4.21.2",
-    "mongoose": "^8.22.0"
+    "mongoose": "^8.22.0",
+    "validator": "^13.15.26"
   },
   "devDependencies": {
     "eslint": "^8.57.1",
