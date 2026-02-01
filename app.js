@@ -1,22 +1,20 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import userRouter from './routes/users.js';
+const express = require("express");
+const auth = require("./middleware/auth");
+const itemsRouter = require("./routes/clothingitems");
 
 const app = express();
-const PORT = process.env.PORT || 3001;
-
-mongoose
-  .connect('mongodb://127.0.0.1:27017/wtwr_db')
-  .then(() => console.log('Connected to MongoDB'))
-  .catch((err) => console.error('MongoDB connection error:', err));
 
 app.use(express.json());
-app.use('/users', userRouter);
 
-app.get('/', (req, res) => {
-  res.send('WTWR backend is running');
+// ⬅️ Mount temporary auth BEFORE routes
+app.use(auth);
+
+// Items routes
+app.use("/items", itemsRouter);
+
+// Catch‑all 404
+app.use((req, res) => {
+  res.status(404).json({ message: "Requested resource not found" });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+module.exports = app;

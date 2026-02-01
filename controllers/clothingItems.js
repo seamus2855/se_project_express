@@ -1,4 +1,9 @@
-const Item = require("../models/clothingItem");
+const Item = require("../models/clothingitems");
+const {
+  BAD_REQUEST,
+  NOT_FOUND,
+  INTERNAL_SERVER_ERROR
+} = require("../utils/statusCodes"); // adjust path as needed
 
 // GET /items — fetch all clothing items
 exports.getAll = async (req, res) => {
@@ -6,7 +11,7 @@ exports.getAll = async (req, res) => {
     const items = await Item.find();
     res.json(items);
   } catch (err) {
-    res.status(500).json({ message: "Server error" });
+    res.status(INTERNAL_SERVER_ERROR).json({ message: "Server error" });
   }
 };
 
@@ -15,11 +20,11 @@ exports.getById = async (req, res) => {
   try {
     const item = await Item.findById(req.params.id);
     if (!item) {
-      return res.status(404).json({ message: "Item not found" });
+      return res.status(NOT_FOUND).json({ message: "Item not found" });
     }
     res.json(item);
   } catch (err) {
-    res.status(400).json({ message: "Invalid ID format" });
+    res.status(BAD_REQUEST).json({ message: "Invalid ID format" });
   }
 };
 
@@ -29,7 +34,7 @@ exports.create = async (req, res) => {
     const newItem = await Item.create(req.body);
     res.status(201).json(newItem);
   } catch (err) {
-    res.status(400).json({ message: "Invalid data" });
+    res.status(BAD_REQUEST).json({ message: "Invalid data" });
   }
 };
 
@@ -43,12 +48,12 @@ exports.update = async (req, res) => {
     );
 
     if (!updatedItem) {
-      return res.status(404).json({ message: "Item not found" });
+      return res.status(NOT_FOUND).json({ message: "Item not found" });
     }
 
     res.json(updatedItem);
   } catch (err) {
-    res.status(400).json({ message: "Invalid data or ID format" });
+    res.status(BAD_REQUEST).json({ message: "Invalid data or ID format" });
   }
 };
 
@@ -58,11 +63,11 @@ exports.delete = async (req, res) => {
     const deletedItem = await Item.findByIdAndDelete(req.params.id);
 
     if (!deletedItem) {
-      return res.status(404).json({ message: "Item not found" });
+      return res.status(NOT_FOUND).json({ message: "Item not found" });
     }
 
     res.json({ message: "Item deleted" });
   } catch (err) {
-    res.status(400).json({ message: "Invalid ID format" });
+    res.status(BAD_REQUEST).json({ message: "Invalid ID format" });
   }
 };
