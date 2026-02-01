@@ -1,29 +1,18 @@
-const router = require("express").Router();
-const { getUsers } = require("../controllers/users");
+import express from 'express';
+import {
+  getAllUsers,
+  getUser,
+  createUser,
+  updateUser,
+  deleteUser
+} from '../controllers/users.js';
 
-// GET all users
-router.get("/users", (req, res) => {
-  res.json({ message: "Get all users" });
-});
+const router = express.Router();
 
-// GET user by ID
-router.get("/:id", (req, res) => {
-  res.json({ message: `Get user ${req.params.id}` });
-});
+router.get('/', getAllUsers);
+router.get('/:id', getUser);
+router.post('/', createUser);
+router.patch('/:id', updateUser);
+router.delete('/:id', deleteUser);
 
-// POST new user
-router.post("/", (req, res) => {
-  res.json({ message: "Create new user" });
-});
-
-// PUT update user
-router.put("/:id", (req, res) => {
-  res.json({ message: `Update user ${req.params.id}` });
-});
-
-// DELETE user
-router.delete("/:id", (req, res) => {
-  res.json({ message: `Delete user ${req.params.id}` });
-});
-
-module.exports = router;
+export default router;

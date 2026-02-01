@@ -1,6 +1,6 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const mainRouter = require('./routes/users');
+import express from 'express';
+import mongoose from 'mongoose';
+import userRouter from './routes/users.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -11,7 +11,7 @@ mongoose
   .catch((err) => console.error('MongoDB connection error:', err));
 
 app.use(express.json());
-app.use('/users', mainRouter);
+app.use('/users', userRouter);
 
 app.get('/', (req, res) => {
   res.send('WTWR backend is running');
