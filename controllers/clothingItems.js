@@ -1,24 +1,68 @@
-const clothingItems = [
-    { id: 1, name: 'T-Shirt', category: 'tops', price: 19.99 },
-    { id: 2, name: 'Jeans', category: 'bottoms', price: 49.99 },
-    { id: 3, name: 'Jacket', category: 'outerwear', price: 79.99 }
-];
+const Item = require("../models/clothingItem");
 
-exports.getAllClothingItems = (req, res) => {
-    res.json(clothingItems);
+// GET /items — fetch all clothing items
+exports.getAll = async (req, res) => {
+  try {
+    const items = await Item.find();
+    res.json(items);
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
 };
 
-exports.getClothingItemById = (req, res) => {
-    const item = clothingItems.find(item => item.id === parseInt(req.params.id));
-    if (!item) return res.status(404).json({ message: 'Item not found' });
+// GET /items/:id — fetch a single item by ID
+exports.getById = async (req, res) => {
+  try {
+    const item = await Item.findById(req.params.id);
+    if (!item) {
+      return res.status(404).json({ message: "Item not found" });
+    }
     res.json(item);
+  } catch (err) {
+    res.status(400).json({ message: "Invalid ID format" });
+  }
 };
 
-exports.createClothingItem = (req, res) => {
-    const newItem = {
-        id: clothingItems.length + 1,
-        ...req.body
-    };
-    clothingItems.push(newItem);
+// POST /items — create a new item
+exports.create = async (req, res) => {
+  try {
+    const newItem = await Item.create(req.body);
     res.status(201).json(newItem);
+  } catch (err) {
+    res.status(400).json({ message: "Invalid data" });
+  }
+};
+
+// PUT /items/:id — update/replace an item
+exports.update = async (req, res) => {
+  try {
+    const updatedItem = await Item.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedItem) {
+      return res.status(404).json({ message: "Item not found" });
+    }
+
+    res.json(updatedItem);
+  } catch (err) {
+    res.status(400).json({ message: "Invalid data or ID format" });
+  }
+};
+
+// DELETE /items/:id — remove an item
+exports.delete = async (req, res) => {
+  try {
+    const deletedItem = await Item.findByIdAndDelete(req.params.id);
+
+    if (!deletedItem) {
+      return res.status(404).json({ message: "Item not found" });
+    }
+
+    res.json({ message: "Item deleted" });
+  } catch (err) {
+    res.status(400).json({ message: "Invalid ID format" });
+  }
 };
