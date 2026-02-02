@@ -1,57 +1,60 @@
-import User from '../models/user.js';
+const User = require("../models/user");
+const {
+  BAD_REQUEST,
+  NOT_FOUND,
+  INTERNAL_SERVER_ERROR
+} = require("../utils/errors");
 
-// Get all users
-export const getAllUsers = async (req, res) => {
+// GET /users — fetch all users
+exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.find();
     res.json(users);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  } catch (err) {
+    res.status(INTERNAL_SERVER_ERROR).json({ message: "Server error" });
   }
 };
 
-// Get a single user
-export const getUser = async (req, res) => {
+// GET /users/:id — fetch a single user
+exports.getUser = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
-    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    if (!user) {
+      return res.status(NOT_FOUND).json({ message: "User not found" });
+    }
+
     res.json(user);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
+  } catch (err) {
+    res.status(BAD_REQUEST).json({ message: "Invalid ID format" });
   }
 };
 
-// Create a new user
-export const createUser = async (req, res) => {
-  const user = new User(req.body);
+// POST /users — create a new user
+exports.createUser = async (req, res) => {
   try {
-    const newUser = await user.save();
+    const newUser = await User.create(req.body);
     res.status(201).json(newUser);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
+  } catch (err) {
+    res.status(BAD_REQUEST).json({ message: "Invalid data" });
   }
 };
 
-// Update a user
-export const updateUser = async (req, res) => {
+// PATCH /users/:id — update a user
+exports.updateUser = async (req, res) => {
   try {
-    const user = await User.findByIdAndUpdate(
+    const updatedUser = await User.findByIdAndUpdate(
       req.params.id,
       req.body,
-      { new: true }
+      { new: true, runValidators: true }
     );
-    res.json(user);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-};
 
-// Delete a user
-export const deleteUser = async (req, res) => {
-  try {
-    await User.findByIdAndDelete(req.params.id);
-    res.json({ message: 'User deleted' });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+    if (!updatedUser) {
+      return res.status(NOT_FOUND).json({ message: "User not found" });
+    }
+
+    res.json(updatedUser);
+  } catch (err) {
+    res.status(BAD_REQUEST).json({ message: "Invalid data or ID format" });
   }
 };

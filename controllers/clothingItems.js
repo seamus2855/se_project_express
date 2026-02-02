@@ -3,9 +3,9 @@ const {
   BAD_REQUEST,
   NOT_FOUND,
   INTERNAL_SERVER_ERROR
-} = require("../utils/errors"); // adjust path as needed
+} = require("../utils/errors");
 
-// GET /items — fetch all clothing items
+// GET / — fetch all clothing items
 exports.getAll = async (req, res) => {
   try {
     const items = await Item.find();
@@ -15,49 +15,20 @@ exports.getAll = async (req, res) => {
   }
 };
 
-// GET /items/:id — fetch a single item by ID
-exports.getById = async (req, res) => {
-  try {
-    const item = await Item.findById(req.params.id);
-    if (!item) {
-      return res.status(NOT_FOUND).json({ message: "Item not found" });
-    }
-    res.json(item);
-  } catch (err) {
-    res.status(BAD_REQUEST).json({ message: "Invalid ID format" });
-  }
-};
-
-// POST /items — create a new item
+// POST / — create a new item
 exports.create = async (req, res) => {
   try {
     const newItem = await Item.create(req.body);
     res.status(201).json(newItem);
   } catch (err) {
-    res.status(BAD_REQUEST).json({ message: "Invalid data" });
-  }
-};
-
-// PUT /items/:id — update/replace an item
-exports.update = async (req, res) => {
-  try {
-    const updatedItem = await Item.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    );
-
-    if (!updatedItem) {
-      return res.status(NOT_FOUND).json({ message: "Item not found" });
+    if (err.name === "ValidationError") {
+      return res.status(BAD_REQUEST).json({ message: "Invalid data" });
     }
-
-    res.json(updatedItem);
-  } catch (err) {
-    res.status(BAD_REQUEST).json({ message: "Invalid data or ID format" });
+    res.status(INTERNAL_SERVER_ERROR).json({ message: "Server error" });
   }
 };
 
-// DELETE /items/:id — remove an item
+// DELETE /:id — remove an item
 exports.delete = async (req, res) => {
   try {
     const deletedItem = await Item.findByIdAndDelete(req.params.id);
@@ -68,6 +39,53 @@ exports.delete = async (req, res) => {
 
     res.json({ message: "Item deleted" });
   } catch (err) {
-    res.status(BAD_REQUEST).json({ message: "Invalid ID format" });
+    if (err.name === "CastError") {
+      return res.status(BAD_REQUEST).json({ message: "Invalid ID format" });
+    }
+    res.status(INTERNAL_SERVER_ERROR).json({ message: "Server error" });
+  }
+};
+
+// PUT /:id/likes — like an item
+exports.likeItem = async (req, res) => {
+  try {
+    const updatedItem = await Item.findByIdAndUpdate(
+      req.params.id,
+      { $addToSet: { likes: req.user._id } },
+      { new: true }
+    );
+
+    if (!updatedItem) {
+      return res.status(NOT_FOUND).json({ message: "Item not found" });
+    }
+
+    res.json(updatedItem);
+  } catch (err) {
+    if (err.name === "CastError") {
+      return res.status(BAD_REQUEST).json({ message: "Invalid ID format" });
+    }
+    res.status(INTERNAL_SERVER_ERROR).json({ message: "Server error" });
+  }
+};
+
+// DELETE /:id/likes — unlike an item
+exports.unlikeItem = async (req, res) => {
+  try {
+    const updatedItem = await Item.findByIdAndUpdate(
+      req.params.id,
+      { $pull: { likes: req.user._id } },
+      { new: true }
+    );
+
+    if (!updatedItem) {
+      return res.status(NOT_FOUND).json({ message: "Item not found" });
+    }
+
+    res.json(updatedItem);
+  } catch (err) {
+    if (err.name === "CastError") {
+      return res.status(BAD_REQUEST).json({ message: "Invalid ID format" });
+    }
+    res.status(INTERNAL_SERVER_ERROR).json({ message: "Server error" });
   }
 };

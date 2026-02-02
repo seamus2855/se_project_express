@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Express backend for Seamus's project",
   "main": "app.js",
-  "type": "module",
   "author": "Seamus Ryan",
   "license": "MIT",
   "scripts": {

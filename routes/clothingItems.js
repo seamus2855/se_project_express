@@ -5,7 +5,6 @@ const router = express.Router();
 
 // Base item routes
 router.get("/", clothingItems.getAll);
-router.get("/:id", clothingItems.getById);
 router.post("/", clothingItems.create);
 router.delete("/:id", clothingItems.delete);
 
@@ -13,12 +12,4 @@ router.delete("/:id", clothingItems.delete);
 router.put("/:id/likes", clothingItems.likeItem);
 router.delete("/:id/likes", clothingItems.unlikeItem);
 
-module.exports = {
-  getAll,
-  getById,
-  create,
-  delete: deleteItem,
-  likeItem,
-  unlikeItem
-};
-
+module.exports = router;

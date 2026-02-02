@@ -1,23 +1,21 @@
 const express = require("express");
-const routes = require("./routes"); // main router
+const routes = require("./routes");
+const auth = require("./middleware/auth");
+const { NOT_FOUND } = require("./utils/errors"); // import your constants
 
 const app = express();
 
 app.use(express.json());
 
-// Temporary authorization (required for this sprint)
+// Temporary authentication middleware (must be before routes)
 app.use(auth);
 
-// Connect main router at root
+// Main router mounted at root
 app.use("/", routes);
 
 // Final 404 handler
 app.use((req, res) => {
-  res.status(404).json({ message: "Requested resource not found" });
+  res.status(NOT_FOUND).json({ message: "Requested resource not found" });
 });
 
-module.exports = (req, res, next) => {
-  req.user = { _id: "67a0c8f9e4b2f4a1d1234567" }; // hard‑coded test user ID
-  next();
-};
-
+module.exports = app;
