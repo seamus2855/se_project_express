@@ -3,7 +3,7 @@ const {
   BAD_REQUEST,
   NOT_FOUND,
   INTERNAL_SERVER_ERROR
-} = require("../utils/statusCodes"); // adjust path as needed
+} = require("../utils/errors"); // adjust path as needed
 
 // GET /items — fetch all clothing items
 exports.getAll = async (req, res) => {

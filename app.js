@@ -1,20 +1,23 @@
 const express = require("express");
-const auth = require("./middleware/auth");
-const itemsRouter = require("./routes/clothingitems");
+const routes = require("./routes"); // main router
 
 const app = express();
 
 app.use(express.json());
 
-// ⬅️ Mount temporary auth BEFORE routes
+// Temporary authorization (required for this sprint)
 app.use(auth);
 
-// Items routes
-app.use("/items", itemsRouter);
+// Connect main router at root
+app.use("/", routes);
 
-// Catch‑all 404
+// Final 404 handler
 app.use((req, res) => {
   res.status(404).json({ message: "Requested resource not found" });
 });
 
-module.exports = app;
+module.exports = (req, res, next) => {
+  req.user = { _id: "67a0c8f9e4b2f4a1d1234567" }; // hard‑coded test user ID
+  next();
+};
+
