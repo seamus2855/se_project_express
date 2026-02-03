@@ -3,8 +3,10 @@ const mongoose = require("mongoose");
 const routes = require("./routes");
 const { NOT_FOUND } = require("./utils/errors");
 
-mongoose.connect("mongodb://127.0.0.1:27017/wtwr_db")
+mongoose
+  .connect("mongodb://127.0.0.1:27017/wtwr_db")
   .then(() => {
+    // eslint-disable-next-line no-console
     console.log("Connected to MongoDB");
   })
   .catch((err) => {
