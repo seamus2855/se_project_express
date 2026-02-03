@@ -9,9 +9,9 @@ const {
 exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.find();
-    res.json(users);
+    return res.json(users);
   } catch (err) {
-    res.status(INTERNAL_SERVER_ERROR).json({ message: "Server error" });
+    return res.status(INTERNAL_SERVER_ERROR).json({ message: "Server error" });
   }
 };
 
@@ -24,9 +24,9 @@ exports.getUser = async (req, res) => {
       return res.status(NOT_FOUND).json({ message: "User not found" });
     }
 
-    res.json(user);
+    return res.json(user);
   } catch (err) {
-    res.status(BAD_REQUEST).json({ message: "Invalid ID format" });
+    return res.status(BAD_REQUEST).json({ message: "Invalid ID format" });
   }
 };
 
@@ -34,9 +34,9 @@ exports.getUser = async (req, res) => {
 exports.createUser = async (req, res) => {
   try {
     const newUser = await User.create(req.body);
-    res.status(201).json(newUser);
+    return res.status(201).json(newUser);
   } catch (err) {
-    res.status(BAD_REQUEST).json({ message: "Invalid data" });
+    return res.status(BAD_REQUEST).json({ message: "Invalid data" });
   }
 };
 
@@ -53,8 +53,8 @@ exports.updateUser = async (req, res) => {
       return res.status(NOT_FOUND).json({ message: "User not found" });
     }
 
-    res.json(updatedUser);
+    return res.json(updatedUser);
   } catch (err) {
-    res.status(BAD_REQUEST).json({ message: "Invalid data or ID format" });
+    return res.status(BAD_REQUEST).json({ message: "Invalid data or ID format" });
   }
 };
