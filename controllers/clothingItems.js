@@ -9,9 +9,9 @@ const {
 exports.getAll = async (req, res) => {
   try {
     const items = await Item.find();
-    res.json(items);
+    return res.json(items);
   } catch (err) {
-    res.status(INTERNAL_SERVER_ERROR).json({ message: "Server error" });
+    return res.status(INTERNAL_SERVER_ERROR).json({ message: "Server error" });
   }
 };
 
@@ -19,12 +19,12 @@ exports.getAll = async (req, res) => {
 exports.create = async (req, res) => {
   try {
     const newItem = await Item.create(req.body);
-    res.status(201).json(newItem);
+    return res.status(201).json(newItem);
   } catch (err) {
     if (err.name === "ValidationError") {
       return res.status(BAD_REQUEST).json({ message: "Invalid data" });
     }
-    res.status(INTERNAL_SERVER_ERROR).json({ message: "Server error" });
+    return res.status(INTERNAL_SERVER_ERROR).json({ message: "Server error" });
   }
 };
 
@@ -37,12 +37,12 @@ exports.delete = async (req, res) => {
       return res.status(NOT_FOUND).json({ message: "Item not found" });
     }
 
-    res.json({ message: "Item deleted" });
+    return res.json({ message: "Item deleted" });
   } catch (err) {
     if (err.name === "CastError") {
       return res.status(BAD_REQUEST).json({ message: "Invalid ID format" });
     }
-    res.status(INTERNAL_SERVER_ERROR).json({ message: "Server error" });
+    return res.status(INTERNAL_SERVER_ERROR).json({ message: "Server error" });
   }
 };
 
@@ -59,12 +59,12 @@ exports.likeItem = async (req, res) => {
       return res.status(NOT_FOUND).json({ message: "Item not found" });
     }
 
-    res.json(updatedItem);
+    return res.json(updatedItem);
   } catch (err) {
     if (err.name === "CastError") {
       return res.status(BAD_REQUEST).json({ message: "Invalid ID format" });
     }
-    res.status(INTERNAL_SERVER_ERROR).json({ message: "Server error" });
+    return res.status(INTERNAL_SERVER_ERROR).json({ message: "Server error" });
   }
 };
 
@@ -81,11 +81,11 @@ exports.unlikeItem = async (req, res) => {
       return res.status(NOT_FOUND).json({ message: "Item not found" });
     }
 
-    res.json(updatedItem);
+    return res.json(updatedItem);
   } catch (err) {
     if (err.name === "CastError") {
       return res.status(BAD_REQUEST).json({ message: "Invalid ID format" });
     }
-    res.status(INTERNAL_SERVER_ERROR).json({ message: "Server error" });
+    return res.status(INTERNAL_SERVER_ERROR).json({ message: "Server error" });
   }
 };

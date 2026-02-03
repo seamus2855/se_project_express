@@ -1,7 +1,7 @@
 const router = require("express").Router();
 
 const userRouter = require("./users");
-const itemsRouter = require("./clothingitems"); // match filename exactly
+const itemsRouter = require("./clothingitems");
 
 // Mount routers
 router.use("/users", userRouter);

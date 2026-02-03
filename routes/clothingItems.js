@@ -1,5 +1,5 @@
 const express = require("express");
-const clothingItems = require("../controllers/clothingitems"); // match filename exactly
+const clothingItems = require("../controllers/clothingitems");
 
 const router = express.Router();
 
@@ -13,3 +13,4 @@ router.put("/:id/likes", clothingItems.likeItem);
 router.delete("/:id/likes", clothingItems.unlikeItem);
 
 module.exports = router;
+

@@ -1,16 +1,27 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const routes = require("./routes");
-const auth = require("./middleware/auth");
-const { NOT_FOUND } = require("./utils/errors"); // import your constants
+const { NOT_FOUND } = require("./utils/errors");
+
+mongoose.connect("mongodb://127.0.0.1:27017/wtwr_db")
+  .then(() => {
+    console.log("Connected to MongoDB");
+  })
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+  });
 
 const app = express();
 
 app.use(express.json());
 
-// Temporary authentication middleware (must be before routes)
-app.use(auth);
+// Temporary authentication middleware
+app.use((req, res, next) => {
+  req.user = { _id: "689a9030e7d3d166a6e97f46" };
+  next();
+});
 
-// Main router mounted at root
+// Main router
 app.use("/", routes);
 
 // Final 404 handler
