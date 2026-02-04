@@ -17,6 +17,7 @@ mongoose
   });
 
 const app = express();
+const PORT = 3001;
 
 app.use(express.json());
 
@@ -34,4 +35,6 @@ app.use((req, res) => {
   res.status(NOT_FOUND).json({ message: "Requested resource not found" });
 });
 
-module.exports = app;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
