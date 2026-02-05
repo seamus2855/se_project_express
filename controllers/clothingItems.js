@@ -33,7 +33,9 @@ exports.create = async (req, res) => {
     if (err.name === "ValidationError") {
       return res.status(BAD_REQUEST).json({ message: "Invalid data" });
     }
-    return res.status(INTERNAL_SERVER_ERROR).json({ message: "Server error" });
+    return res
+      .status(INTERNAL_SERVER_ERROR)
+      .json({ message: "An error has occurred on the server." });
   }
 };
 
@@ -51,7 +53,9 @@ exports.delete = async (req, res) => {
     if (err.name === "CastError") {
       return res.status(BAD_REQUEST).json({ message: "Invalid ID format" });
     }
-    return res.status(INTERNAL_SERVER_ERROR).json({ message: "Server error" });
+    return res
+      .status(INTERNAL_SERVER_ERROR)
+      .json({ message: "An error has occurred on the server." });
   }
 };
 
@@ -73,7 +77,9 @@ exports.likeItem = async (req, res) => {
     if (err.name === "CastError") {
       return res.status(BAD_REQUEST).json({ message: "Invalid ID format" });
     }
-    return res.status(INTERNAL_SERVER_ERROR).json({ message: "Server error" });
+    return res
+      .status(INTERNAL_SERVER_ERROR)
+      .json({ message: "An error has occurred on the server." });
   }
 };
 
@@ -95,6 +101,8 @@ exports.unlikeItem = async (req, res) => {
     if (err.name === "CastError") {
       return res.status(BAD_REQUEST).json({ message: "Invalid ID format" });
     }
-    return res.status(INTERNAL_SERVER_ERROR).json({ message: "Server error" });
+    return res
+      .status(INTERNAL_SERVER_ERROR)
+      .json({ message: "An error has occurred on the server." });
   }
 };

@@ -11,7 +11,9 @@ exports.getAllUsers = async (req, res) => {
     const users = await User.find();
     return res.json(users);
   } catch (err) {
-    return res.status(INTERNAL_SERVER_ERROR).json({ message: "Server error" });
+    return res
+      .status(INTERNAL_SERVER_ERROR)
+      .json({ message: "An error has occurred on the server." });
   }
 };
 
@@ -26,7 +28,12 @@ exports.getUser = async (req, res) => {
 
     return res.json(user);
   } catch (err) {
-    return res.status(BAD_REQUEST).json({ message: "Invalid data" });
+    if (err.name === "ValidationError") {
+      return res.status(BAD_REQUEST).json({ message: "Invalid data" });
+    }
+    return res
+      .status(INTERNAL_SERVER_ERROR)
+      .json({ message: "An error has occurred on the server." });
   }
 };
 
@@ -36,7 +43,12 @@ exports.createUser = async (req, res) => {
     const newUser = await User.create(req.body);
     return res.status(201).json(newUser);
   } catch (err) {
-    return res.status(BAD_REQUEST).json({ message: "Invalid data" });
+    if (err.name === "ValidationError" || err.name === "CastError") {
+      return res.status(BAD_REQUEST).json({ message: "Invalid data" });
+    }
+    return res
+      .status(INTERNAL_SERVER_ERROR)
+      .json({ message: "An error has occurred on the server." });
   }
 };
 
