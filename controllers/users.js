@@ -2,7 +2,7 @@ const User = require("../models/user");
 const {
   BAD_REQUEST,
   NOT_FOUND,
-  INTERNAL_SERVER_ERROR
+  INTERNAL_SERVER_ERROR,
 } = require("../utils/errors");
 
 // GET /users — fetch all users
@@ -26,7 +26,7 @@ exports.getUser = async (req, res) => {
 
     return res.json(user);
   } catch (err) {
-    return res.status(BAD_REQUEST).json({ message: "Invalid ID format" });
+    return res.status(BAD_REQUEST).json({ message: "Invalid data" });
   }
 };
 
@@ -43,11 +43,10 @@ exports.createUser = async (req, res) => {
 // PATCH /users/:id — update a user
 exports.updateUser = async (req, res) => {
   try {
-    const updatedUser = await User.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    );
+    const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!updatedUser) {
       return res.status(NOT_FOUND).json({ message: "User not found" });
@@ -55,6 +54,6 @@ exports.updateUser = async (req, res) => {
 
     return res.json(updatedUser);
   } catch (err) {
-    return res.status(BAD_REQUEST).json({ message: "Invalid data or ID format" });
+    return res.status(BAD_REQUEST).json({ message: "Invalid data" });
   }
 };
