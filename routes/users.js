@@ -1,16 +1,9 @@
 const express = require("express");
-const {
-  getAllUsers,
-  getUser,
-  createUser,
-  updateUser
-} = require("../controllers/users");
+const { updateUser } = require("../controllers/users");
 
 const router = express.Router();
 
-router.get("/", getAllUsers);
-router.get("/:id", getUser);
-router.post("/", createUser);
+// Only allow updating the current user
 router.patch("/:id", updateUser);
 
 module.exports = router;
