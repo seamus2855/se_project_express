@@ -1,9 +1,12 @@
 const express = require("express");
-const { updateUser } = require("../controllers/users");
+const { getCurrentUser, updateUser } = require("../controllers/users");
 
 const router = express.Router();
 
-// Only allow updating the current user
+// Get the currently authenticated user
+router.get("/me", getCurrentUser);
+
+// Update the current user
 router.patch("/:id", updateUser);
 
 module.exports = router;
