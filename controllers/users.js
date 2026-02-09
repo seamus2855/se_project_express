@@ -1,71 +1,71 @@
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const {
   BAD_REQUEST,
   NOT_FOUND,
   INTERNAL_SERVER_ERROR,
+  UNAUTHORIZED,
+  CONFLICT,
 } = require("../utils/errors");
-
-// GET /users — fetch all users
-exports.getAllUsers = async (req, res) => {
-  try {
-    const users = await User.find();
-    return res.json(users);
-  } catch (err) {
-    return res
-      .status(INTERNAL_SERVER_ERROR)
-      .json({ message: "An error has occurred on the server." });
-  }
-};
-
-// GET /users/:id — fetch a single user
-exports.getUser = async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id);
-
-    if (!user) {
-      return res.status(NOT_FOUND).json({ message: "User not found" });
-    }
-
-    return res.json(user);
-  } catch (err) {
-    if (err.name === "ValidationError") {
-      return res.status(BAD_REQUEST).json({ message: "Invalid data" });
-    }
-    return res
-      .status(INTERNAL_SERVER_ERROR)
-      .json({ message: "An error has occurred on the server." });
-  }
-};
+const { JWT_SECRET } = require("../utils/config");
 
 // POST /users — create a new user
 exports.createUser = async (req, res) => {
   try {
-    const newUser = await User.create(req.body);
+    const { email, password, ...rest } = req.body;
+
+    // Hash password before saving
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = await User.create({
+      email,
+      password: hashedPassword,
+      ...rest,
+    });
+
     return res.status(201).json(newUser);
   } catch (err) {
+    // Duplicate email error
+    if (err.code === 11000) {
+      return res.status(CONFLICT).json({ message: "Email already exists" });
+    }
+
     if (err.name === "ValidationError" || err.name === "CastError") {
       return res.status(BAD_REQUEST).json({ message: "Invalid data" });
     }
+
     return res
       .status(INTERNAL_SERVER_ERROR)
       .json({ message: "An error has occurred on the server." });
   }
 };
 
-// PATCH /users/:id — update a user
-exports.updateUser = async (req, res) => {
+// POST /login — authenticate user
+exports.login = async (req, res) => {
   try {
-    const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    const { email, password } = req.body;
 
-    if (!updatedUser) {
-      return res.status(NOT_FOUND).json({ message: "User not found" });
-    }
+    // Custom mongoose method
+    const user = await User.findUserByCredentials(email, password);
 
-    return res.json(updatedUser);
-  } catch (err) {
-    return res.status(BAD_REQUEST).json({ message: "Invalid data" });
-  }
-};
+        // Create JWT valid for 7 days
+        const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+          expiresIn: "7d",
+        });
+    
+        return res.status(200).json({ token });
+      } catch (err) {
+        if (err.message === "User not found") {
+          return res.status(NOT_FOUND).json({ message: "User not found" });
+        }
+    
+        if (err.message === "Incorrect password") {
+          return res.status(UNAUTHORIZED).json({ message: "Incorrect password" });
+        }
+    
+        return res
+          .status(INTERNAL_SERVER_ERROR)
+          .json({ message: "An error has occurred on the server." });
+      }
+    };
