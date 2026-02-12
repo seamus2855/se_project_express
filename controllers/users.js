@@ -17,14 +17,87 @@ exports.createUser = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-        const newUser = await User.create({
-          email,
-          password: hashedPassword,
-          ...rest,
-        });
-    
-        return res.status(201).json(newUser);
-      } catch (error) {
-        return res.status(INTERNAL_SERVER_ERROR).json({ message: error.message });
-      }
-    };
+    const newUser = await User.create({
+      email,
+      password: hashedPassword,
+      ...rest,
+    });
+
+    return res.status(201).json(newUser);
+  } catch (err) {
+    if (err.code === 11000) {
+      return res.status(CONFLICT).json({ message: "Email already exists" });
+    }
+
+    if (err.name === "ValidationError" || err.name === "CastError") {
+      return res.status(BAD_REQUEST).json({ message: "Invalid data" });
+    }
+
+    return res
+      .status(INTERNAL_SERVER_ERROR)
+      .json({ message: "An error has occurred on the server." });
+  }
+};
+
+// POST /signin — authenticate user
+exports.login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findUserByCredentials(email, password);
+
+    const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+      expiresIn: "7d",
+    });
+
+    return res.status(200).json({ token });
+  } catch (err) {
+    return res
+      .status(UNAUTHORIZED)
+      .json({ message: "Incorrect email or password" });
+  }
+};
+
+// GET /users/me — get current user
+exports.getCurrentUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(NOT_FOUND).json({ message: "User not found" });
+    }
+
+    return res.json(user);
+  } catch (err) {
+    return res
+      .status(INTERNAL_SERVER_ERROR)
+      .json({ message: "An error has occurred on the server." });
+  }
+};
+
+// PATCH /users/me — update profile
+exports.updateCurrentUser = async (req, res) => {
+  try {
+    const { name, avatar } = req.body;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      { name, avatar },
+      { new: true, runValidators: true },
+    );
+
+    if (!updatedUser) {
+      return res.status(NOT_FOUND).json({ message: "User not found" });
+    }
+
+    return res.json(updatedUser);
+  } catch (err) {
+    if (err.name === "ValidationError" || err.name === "CastError") {
+      return res.status(BAD_REQUEST).json({ message: "Invalid data" });
+    }
+
+    return res
+      .status(INTERNAL_SERVER_ERROR)
+      .json({ message: "An error has occurred on the server." });
+  }
+};
