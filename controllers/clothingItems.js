@@ -79,7 +79,7 @@ exports.likeItem = async (req, res) => {
     const updatedItem = await Item.findByIdAndUpdate(
       req.params.id,
       { $addToSet: { likes: req.user._id } },
-      { new: true }
+      { new: true },
     );
 
     if (!updatedItem) {
@@ -104,7 +104,7 @@ exports.unlikeItem = async (req, res) => {
     const updatedItem = await Item.findByIdAndUpdate(
       req.params.id,
       { $pull: { likes: req.user._id } },
-      { new: true }
+      { new: true },
     );
 
     if (!updatedItem) {
