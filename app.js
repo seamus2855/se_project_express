@@ -1,42 +1,23 @@
-/* eslint-disable no-console */
-
 const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
-const routes = require("./routes");
-const { NOT_FOUND } = require("./utils/errors");
+const auth = require("./middlewares/auth");
 const { login, createUser } = require("./controllers/users");
-
-mongoose
-  .connect("mongodb://127.0.0.1:27017/wtwr_db")
-  .then(() => {
-    console.log("Connected to MongoDB");
-  })
-  .catch((err) => {
-    console.error("MongoDB connection error:", err);
-  });
+const userRoutes = require("./routes/users");
+const itemRoutes = require("./routes/items");
 
 const app = express();
-const PORT = 3001;
 
-// Enable CORS for all routes
-app.use(cors());
-
-// Parse JSON bodies
 app.use(express.json());
 
-// Public auth routes
+// Public routes
 app.post("/signin", login);
 app.post("/signup", createUser);
+app.get("/items", itemRoutes); // GET /items is public
 
-// Main router (protected routes should be inside routes/index.js)
-app.use("/", routes);
+// Apply auth to everything below
+app.use(auth);
 
-// Final 404 handler
-app.use((req, res) => {
-  res.status(NOT_FOUND).json({ message: "Requested resource not found" });
-});
+// Protected routes
+app.use("/users", userRoutes);
+app.use("/items", itemRoutes); // all other item routes are protected
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+module.exports = app;

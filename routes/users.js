@@ -1,5 +1,5 @@
 const express = require("express");
-const { getCurrentUser, updateUser } = require("../controllers/users");
+const { getCurrentUser, updateCurrentUser } = require("../controllers/users");
 
 const router = express.Router();
 
@@ -7,6 +7,6 @@ const router = express.Router();
 router.get("/me", getCurrentUser);
 
 // Update the current user
-router.patch("/:id", updateUser);
+router.patch("/me", updateCurrentUser);
 
 module.exports = router;
