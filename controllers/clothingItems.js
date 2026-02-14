@@ -4,6 +4,7 @@ const {
   BAD_REQUEST,
   NOT_FOUND,
   INTERNAL_SERVER_ERROR,
+  FORBIDDEN, // ← added
 } = require("../utils/errors");
 
 // GET / — fetch all clothing items
@@ -54,7 +55,7 @@ exports.delete = async (req, res) => {
     // Ownership check
     if (item.owner.toString() !== req.user._id) {
       return res
-        .status(403)
+        .status(FORBIDDEN)
         .json({ message: "Forbidden: You cannot delete another user's item" });
     }
 

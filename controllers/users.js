@@ -23,7 +23,11 @@ exports.createUser = async (req, res) => {
       ...rest,
     });
 
-    return res.status(201).json(newUser);
+    // Remove password before sending response
+    const userObj = newUser.toObject();
+    delete userObj.password;
+
+    return res.status(201).json(userObj);
   } catch (err) {
     if (err.code === 11000) {
       return res.status(CONFLICT).json({ message: "Email already exists" });
@@ -83,7 +87,7 @@ exports.updateCurrentUser = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(
       req.user._id,
       { name, avatar },
-      { new: true, runValidators: true },
+      { new: true, runValidators: true }
     );
 
     if (!updatedUser) {
