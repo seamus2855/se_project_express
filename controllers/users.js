@@ -15,6 +15,12 @@ exports.createUser = async (req, res) => {
   try {
     const { email, password, ...rest } = req.body;
 
+    if (!email || !password) {
+      return res
+        .status(BAD_REQUEST)
+        .json({ message: "Email and password are required" });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await User.create({
@@ -23,7 +29,6 @@ exports.createUser = async (req, res) => {
       ...rest,
     });
 
-    // Remove password before sending response
     const userObj = newUser.toObject();
     delete userObj.password;
 
@@ -48,6 +53,13 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    // Validate required fields
+    if (!email || !password) {
+      return res
+        .status(BAD_REQUEST)
+        .json({ message: "Email and password are required" });
+    }
+
     const user = await User.findUserByCredentials(email, password);
 
     const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
@@ -56,9 +68,15 @@ exports.login = async (req, res) => {
 
     return res.status(200).json({ token });
   } catch (err) {
+    if (err.message === "Incorrect email or password") {
+      return res
+        .status(UNAUTHORIZED)
+        .json({ message: "Incorrect email or password" });
+    }
+
     return res
-      .status(UNAUTHORIZED)
-      .json({ message: "Incorrect email or password" });
+      .status(INTERNAL_SERVER_ERROR)
+      .json({ message: "An error has occurred on the server." });
   }
 };
 
@@ -87,7 +105,7 @@ exports.updateCurrentUser = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(
       req.user._id,
       { name, avatar },
-      { new: true, runValidators: true },
+      { new: true, runValidators: true }
     );
 
     if (!updatedUser) {
