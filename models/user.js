@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const validator = require("validator");
 const bcrypt = require("bcrypt");
 
 const userSchema = new mongoose.Schema(
@@ -9,41 +10,49 @@ const userSchema = new mongoose.Schema(
       minlength: 2,
       maxlength: 30,
     },
+
     avatar: {
       type: String,
       required: true,
+      validate: {
+        validator: (value) => validator.isURL(value),
+        message: "Avatar must be a valid URL",
+      },
     },
+
     email: {
       type: String,
       required: true,
       unique: true,
+      validate: {
+        validator: (value) => validator.isEmail(value),
+        message: "Email must be a valid email address",
+      },
     },
+
     password: {
       type: String,
       required: true,
-      select: false, // IMPORTANT: do not return password by default
+      select: false,
     },
   },
   { versionKey: false }
 );
 
-// STATIC METHOD — find user by credentials
+// STATIC METHOD — required for login
 userSchema.statics.findUserByCredentials = async function (email, password) {
-  // 1. Find user by email and explicitly include password
   const user = await this.findOne({ email }).select("+password");
 
   if (!user) {
     throw new Error("Incorrect email or password");
   }
 
-  // 2. Compare password with hash
   const matched = await bcrypt.compare(password, user.password);
 
   if (!matched) {
     throw new Error("Incorrect email or password");
   }
 
-  // 3. Return user if valid
   return user;
 };
 
