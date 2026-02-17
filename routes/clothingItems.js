@@ -4,6 +4,7 @@ const clothingItems = require("../controllers/clothingItems");
 const router = express.Router();
 
 // Base item routes
+router.get("/", clothingItems.getAll);      // ✔ required for protected GET /items
 router.post("/", clothingItems.create);
 router.delete("/:id", clothingItems.delete);
 
