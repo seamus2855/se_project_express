@@ -1,4 +1,4 @@
-const bcrypt = require("bcrypt");
+-const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const {
@@ -105,7 +105,7 @@ exports.updateCurrentUser = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(
       req.user._id,
       { name, avatar },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!updatedUser) {
