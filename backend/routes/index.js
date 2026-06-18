@@ -1,29 +1,28 @@
 const router = require("express").Router();
 const usersRouter = require("./users");
-const itemsRouter = require("./clothingItems");
 const { login, createUser } = require("../controllers/users");
-const { validateUserBody, validateAuthentication } = require("../middlewares/validation"); // Added Joi validation imports
-const { NOT_FOUND } = require("../utils/errors");
+const { validateUserBody, validateAuthentication } = require("../middlewares/validation");
+const { NotFoundError } = require("../utils/errors"); // Swapped out NOT_FOUND constant for the custom Error Class
+const clothingItemsRouter = require("./clothingItems");
 
 // ==========================================
 // 1. PUBLIC AUTHENTICATION ENDPOINTS
 // ==========================================
-// Secured with automated Celebrate body validation checks
 router.post("/signin", validateAuthentication, login);
 router.post("/signup", validateUserBody, createUser);
 
 // ==========================================
 // 2. RESOURCE ROUTING MOUNTS
 // ==========================================
-// Passes routing down to sub-routers which handle their own public vs. private endpoints cleanly
 router.use("/items", clothingItemsRouter);
-router.use("/users", usersRouter); // Fixed: Removed duplicate global 'auth' middleware layer
+router.use("/users", usersRouter);
 
 // ==========================================
 // 3. CATCH-ALL WILD CARD 404
 // ==========================================
-router.use((req, res) => {
-  return res.status(NOT_FOUND).json({ message: "Requested resource not found" });
+// Fixed: Switched from a direct response to centralized error handling
+router.use((req, res, next) => {
+  return next(new NotFoundError("Requested resource not found"));
 });
 
 module.exports = router;

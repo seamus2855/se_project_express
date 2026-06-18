@@ -19,8 +19,8 @@ const errorHandler = (err, req, res, next) => {
     // Check all possible segments sequentially to locate the Joi error object
     const errorDetails = err.details.get('body') 
       || err.details.get('params') 
-      || err.details.get('query')
-      || err.details.get('headers')
+      || err.details.get('query') 
+      || err.details.get('headers') 
       || err.details.get('cookies');
 
     // FIXED: Safely check if errorDetails exists before trying to access .details map
@@ -31,9 +31,9 @@ const errorHandler = (err, req, res, next) => {
     }
   }
 
-  // 3. Send response
+  // 3. Send response using the exact requested error string formatting logic
   res.status(finalStatusCode).send({
-    message: finalStatusCode === 500 ? 'An error occurred on the server' : finalMessage,
+    message: finalStatusCode === 500 ? 'An error has occurred on the server' : finalMessage,
   });
 };
 

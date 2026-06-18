@@ -1,15 +1,19 @@
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 
 # Dependency directory
-node_modules
+node_modules/
 
 # Optional npm cache directory
-.npm
+.npm/
+
+# Environment configurations (Sensitive Data)
+.env
+.env.local
 
 # System files and IDE settings folders
 .DS_Store
-.idea
-.vscode
+.idea/
+.vscode/

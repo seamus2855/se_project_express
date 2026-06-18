@@ -31,7 +31,7 @@ exports.create = async (req, res) => {
     return res.status(201).json(newItem);
   } catch (err) {
     if (err.name === "ValidationError") {
-      return res.status(BAD_REQUEST).json({ message: "Invalid data" });
+      return next(new BadRequestError("Invalid data"));
     }
     return res
       .status(INTERNAL_SERVER_ERROR)
