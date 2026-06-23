@@ -41,4 +41,4 @@ Before committing your changes, you must update the tracking file in the root fo
 Review these video walkthroughs to see the project functionality in action:
 
 - [WTWR Feature Walkthrough 1](https://www.loom.com/share/8b318fbad21647a49cfd39bd309f0463)
-- [WTWR Feature Walkthrough 2](https://www.loom.com/share/92aeb92c52884b5f9938362)
+- [WTWR Feature Walkthrough 2]https://www.loom.com/share/92aeb92c52884b5f99383629bfe1093d
