@@ -1,5 +1,4 @@
-// errorHandler.js
-const { isCelebrateError } = require('celebrate');
+const { isCelebrateError } = require("celebrate");
 
 // eslint-disable-next-line no-unused-vars
 const errorHandler = (err, req, res, next) => {
@@ -15,25 +14,26 @@ const errorHandler = (err, req, res, next) => {
   // 2. Intercept Celebrate/Joi validation errors safely
   if (isCelebrateError(err)) {
     finalStatusCode = 400;
-    
-    // Check all possible segments sequentially to locate the Joi error object
-    const errorDetails = err.details.get('body') 
-      || err.details.get('params') 
-      || err.details.get('query') 
-      || err.details.get('headers') 
-      || err.details.get('cookies');
 
-    // FIXED: Safely check if errorDetails exists before trying to access .details map
+    // Check all possible segments sequentially to locate the Joi error object
+    const errorDetails =
+      err.details.get("body") ||
+      err.details.get("params") ||
+      err.details.get("query") ||
+      err.details.get("headers") ||
+      err.details.get("cookies");
+
+    // Check if errorDetails exists before trying to access .details map
     if (errorDetails && errorDetails.details) {
-      finalMessage = errorDetails.details.map((detail) => detail.message).join(', ');
+      finalMessage = errorDetails.details.map((detail) => detail.message).join(", ");
     } else {
-      finalMessage = 'Validation Error';
+      finalMessage = "Validation Error";
     }
   }
 
   // 3. Send response using the exact requested error string formatting logic
   res.status(finalStatusCode).send({
-    message: finalStatusCode === 500 ? 'An error has occurred on the server' : finalMessage,
+    message: finalStatusCode === 500 ? "An error has occurred on the server" : finalMessage,
   });
 };
 

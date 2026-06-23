@@ -1,9 +1,11 @@
 const router = require("express").Router();
 const usersRouter = require("./users");
+const clothingItemsRouter = require("./clothingItems");
+const auth = require("../middlewares/auth"); // Added authentication middleware
+
 const { login, createUser } = require("../controllers/users");
 const { validateUserBody, validateAuthentication } = require("../middlewares/validation");
-const { NotFoundError } = require("../utils/errors"); // Swapped out NOT_FOUND constant for the custom Error Class
-const clothingItemsRouter = require("./clothingItems");
+const { NotFoundError } = require("../utils/errors");
 
 // ==========================================
 // 1. PUBLIC AUTHENTICATION ENDPOINTS
@@ -14,13 +16,13 @@ router.post("/signup", validateUserBody, createUser);
 // ==========================================
 // 2. RESOURCE ROUTING MOUNTS
 // ==========================================
-router.use("/items", clothingItemsRouter);
-router.use("/users", usersRouter);
+// Allow public read access inside the router, but guard deletions/creations with auth
+router.use("/items", clothingItemsRouter); 
+router.use("/users", auth, usersRouter); // Protect user routes
 
 // ==========================================
 // 3. CATCH-ALL WILD CARD 404
 // ==========================================
-// Fixed: Switched from a direct response to centralized error handling
 router.use((req, res, next) => {
   return next(new NotFoundError("Requested resource not found"));
 });

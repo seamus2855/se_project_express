@@ -1,73 +1,74 @@
 const Item = require("../models/clothingItems");
-const {
-  BAD_REQUEST,
-  NOT_FOUND,
-  INTERNAL_SERVER_ERROR,
-  FORBIDDEN,
+
+// Import the official Sprint 15 custom error classes explicitly
+const { 
+  BadRequestError, 
+  NotFoundError, 
+  ForbiddenError 
 } = require("../utils/errors");
 
-// GET / — fetch all clothing items
-exports.getAll = async (req, res) => {
+// ==========================================
+// 1. GET / — Fetch All Clothing Items
+// ==========================================
+exports.getAll = async (req, res, next) => {
   try {
     const items = await Item.find();
-    return res.json(items);
+    return res.status(200).json(items);
   } catch (err) {
-    return res
-      .status(INTERNAL_SERVER_ERROR)
-      .json({ message: "An error has occurred on the server." });
+    return next(err);
   }
 };
 
-// POST / — create a new item
-exports.create = async (req, res) => {
+// ==========================================
+// 2. POST / — Create a New Clothing Item
+// ==========================================
+exports.create = async (req, res, next) => {
   try {
     const { name, imageUrl, weather } = req.body;
     const newItem = await Item.create({
       name,
       imageUrl,
       weather,
-      owner: req.user._id, // Fixed: Added missing closing parenthesis
+      owner: req.user._id,
     });
     return res.status(201).json(newItem);
   } catch (err) {
     if (err.name === "ValidationError") {
-      return next(new BadRequestError("Invalid data"));
+      return next(new BadRequestError("Invalid clothing item data provided"));
     }
-    return res
-      .status(INTERNAL_SERVER_ERROR)
-      .json({ message: "An error has occurred on the server." });
+    return next(err);
   }
 };
 
-// DELETE /:id — remove an item (with ownership check)
-exports.delete = async (req, res) => {
+// ==========================================
+// 3. DELETE /:id — Remove an Item with Owner Verification
+// ==========================================
+exports.delete = async (req, res, next) => {
   try {
     const item = await Item.findById(req.params.id);
     if (!item) {
-      return res.status(NOT_FOUND).json({ message: "Item not found" });
+      throw new NotFoundError("Item not found");
     }
 
-    // Ownership check
+    // Ownership verification check
     if (item.owner.toString() !== req.user._id.toString()) {
-      return res
-        .status(FORBIDDEN)
-        .json({ message: "Forbidden: You cannot delete another user's item" });
+      throw new ForbiddenError("You cannot delete another user's item");
     }
 
     await item.deleteOne();
-    return res.json({ message: "Item deleted" });
+    return res.status(200).json({ message: "Item deleted successfully" });
   } catch (err) {
     if (err.name === "CastError") {
-      return res.status(BAD_REQUEST).json({ message: "Invalid ID format" });
+      return next(new BadRequestError("Invalid ID format"));
     }
-    return res
-      .status(INTERNAL_SERVER_ERROR)
-      .json({ message: "An error has occurred on the server." });
+    return next(err);
   }
 };
 
-// PUT /:id/likes — like an item
-exports.likeItem = async (req, res) => {
+// ==========================================
+// 4. PUT /:id/likes — Add a User Like to an Item
+// ==========================================
+exports.likeItem = async (req, res, next) => {
   try {
     const updatedItem = await Item.findByIdAndUpdate(
       req.params.id,
@@ -75,21 +76,21 @@ exports.likeItem = async (req, res) => {
       { new: true },
     );
     if (!updatedItem) {
-      return res.status(NOT_FOUND).json({ message: "Item not found" });
+      throw new NotFoundError("Item not found");
     }
-    return res.json(updatedItem);
+    return res.status(200).json(updatedItem);
   } catch (err) {
     if (err.name === "CastError") {
-      return res.status(BAD_REQUEST).json({ message: "Invalid ID format" });
+      return next(new BadRequestError("Invalid ID format"));
     }
-    return res
-      .status(INTERNAL_SERVER_ERROR)
-      .json({ message: "An error has occurred on the server." });
+    return next(err);
   }
 };
 
-// DELETE /:id/likes — unlike an item
-exports.unlikeItem = async (req, res) => {
+// ==========================================
+// 5. DELETE /:id/likes — Remove a User Like from an Item
+// ==========================================
+exports.unlikeItem = async (req, res, next) => {
   try {
     const updatedItem = await Item.findByIdAndUpdate(
       req.params.id,
@@ -97,15 +98,13 @@ exports.unlikeItem = async (req, res) => {
       { new: true },
     );
     if (!updatedItem) {
-      return res.status(NOT_FOUND).json({ message: "Item not found" });
+      throw new NotFoundError("Item not found");
     }
-    return res.json(updatedItem);
+    return res.status(200).json(updatedItem);
   } catch (err) {
     if (err.name === "CastError") {
-      return res.status(BAD_REQUEST).json({ message: "Invalid ID format" });
+      return next(new BadRequestError("Invalid ID format"));
     }
-    return res
-      .status(INTERNAL_SERVER_ERROR)
-      .json({ message: "An error has occurred on the server." });
+    return next(err);
   }
 };

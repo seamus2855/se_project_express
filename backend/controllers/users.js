@@ -1,27 +1,27 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const {
-  BAD_REQUEST,
-  NOT_FOUND,
-  INTERNAL_SERVER_ERROR,
-  UNAUTHORIZED,
-  CONFLICT,
-} = require('../utils/errors');
 const { JWT_SECRET } = require('../utils/config');
 
-// POST /signup — create a new user
-exports.createUser = async (req, res, next) => { // Added 'next' here
+// Import your custom Error classes explicitly to avoid mixed variable definitions
+const { 
+  BadRequestError, 
+  UnauthorizedError, 
+  NotFoundError, 
+  ConflictError 
+} = require('../utils/errors');
+
+// ==========================================
+// 1. POST /signup — Create New User Profile
+// ==========================================
+exports.createUser = async (req, res, next) => {
   try {
     const { email, password, ...rest } = req.body;
-
     if (!email || !password) {
-      // Fixed syntax error here
-      return next(new BadRequestError("Invalid data"));
+      throw new BadRequestError("Email and password are required");
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
     const newUser = await User.create({
       email,
       password: hashedPassword,
@@ -30,34 +30,30 @@ exports.createUser = async (req, res, next) => { // Added 'next' here
 
     const userObj = newUser.toObject();
     delete userObj.password;
-
     return res.status(201).json(userObj);
   } catch (err) {
     if (err.code === 11000) {
-      return res.status(CONFLICT).json({ message: 'Email already exists' });
+      return next(new ConflictError('Email already exists'));
     }
-    if (err.name === 'ValidationError' || err.name === 'CastError') { // Added quotes
-      return res.status(BAD_REQUEST).json({ message: 'Invalid data' });
+    if (err.name === 'ValidationError' || err.name === 'CastError') {
+      return next(new BadRequestError('Invalid user data provided'));
     }
-    return res
-      .status(INTERNAL_SERVER_ERROR)
-      .json({ message: 'An error has occurred on the server.' });
+    return next(err); // Hands unhandled errors over to winston and central error handler
   }
 };
 
-// POST /signin — authenticate user
-exports.login = async (req, res) => {
+// ==========================================
+// 2. POST /signin — Authenticate & Generate Token
+// ==========================================
+exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-
     if (!email || !password) {
-      return res
-        .status(BAD_REQUEST)
-        .json({ message: 'Email and password are required' });
+      throw new BadRequestError('Email and password are required');
     }
 
     const user = await User.findUserByCredentials(email, password);
-    const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' }); // Added quotes to '7d'
+    const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
 
     return res.status(200).json({
       token,
@@ -69,60 +65,51 @@ exports.login = async (req, res) => {
       },
     });
   } catch (err) {
-    // Added quotes to error string comparisons
     if (err.message === 'Incorrect email or password' || err.name === 'AuthenticationError') {
-      return res
-        .status(UNAUTHORIZED)
-        .json({ message: 'Incorrect email or password' });
+      return next(new UnauthorizedError('Incorrect email or password'));
     }
-    return res
-      .status(INTERNAL_SERVER_ERROR)
-      .json({ message: 'An error has occurred on the server.' });
+    return next(err);
   }
 };
 
-// GET /users/me — get current user
-exports.getCurrentUser = async (req, res) => {
+// ==========================================
+// 3. GET /users/me — Fetch Current Profile Data
+// ==========================================
+exports.getCurrentUser = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user._id).select('-password'); // Added quotes
-
+    const user = await User.findById(req.user._id).select('-password');
     if (!user) {
-      return res.status(NOT_FOUND).json({ message: 'User not found' });
+      throw new NotFoundError('User not found');
     }
-
-    return res.json(user);
+    return res.status(200).json(user);
   } catch (err) {
-    if (err.name === 'CastError') { // Added quotes
-      return res.status(BAD_REQUEST).json({ message: 'Invalid ID format' });
+    if (err.name === 'CastError') {
+      return next(new BadRequestError('Invalid ID format'));
     }
-    return res
-      .status(INTERNAL_SERVER_ERROR)
-      .json({ message: 'An error has occurred on the server.' });
+    return next(err);
   }
 };
 
-// PATCH /users/me — update profile
-exports.updateCurrentUser = async (req, res) => {
+// ==========================================
+// 4. PATCH /users/me — Update Custom Profile Metadata
+// ==========================================
+exports.updateCurrentUser = async (req, res, next) => {
   try {
     const { name, avatar } = req.body;
-
     const updatedUser = await User.findByIdAndUpdate(
       req.user._id,
       { name, avatar },
       { new: true, runValidators: true },
-    ).select('-password'); // Added quotes
+    ).select('-password');
 
     if (!updatedUser) {
-      return res.status(NOT_FOUND).json({ message: 'User not found' });
+      throw new NotFoundError('User not found');
     }
-
-    return res.json(updatedUser);
+    return res.status(200).json(updatedUser);
   } catch (err) {
-    if (err.name === 'ValidationError' || err.name === 'CastError') { // Added quotes
-      return res.status(BAD_REQUEST).json({ message: 'Invalid data' });
+    if (err.name === 'ValidationError' || err.name === 'CastError') {
+      return next(new BadRequestError('Invalid profile data provided'));
     }
-    return res
-      .status(INTERNAL_SERVER_ERROR)
-      .json({ message: 'An error has occurred on the server.' });
+    return next(err);
   }
 };
