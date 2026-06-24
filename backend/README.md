@@ -4,8 +4,8 @@ This repository contains the back-end server for the WTWR application. The proje
 
 ## 🚀 Live Applications
 
-- **Frontend Application:** [View Live Deployment](https://vercel.app)
-- **Backend API Gateway:** [View Live API](https://onrender.com)
+- **Frontend Application:** [View Live Deployment]https://vercel.com/new/clone?repository-name=se_project_react&s=https%3A%2F%2Fgithub.com%2Fseamus2855%2Fse_project_react&teamSlug=seamus-ryan-s-projects
+- **Backend API Gateway:** [View Live API]https://dashboard.render.com/web/srv-d8tmmo9kh4rs73fggr50/deploys/dep-d8tmmohkh4rs73fggrfg
 
 ## 💻 Local Setup & Repositories
 
