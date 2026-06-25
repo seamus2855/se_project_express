@@ -1,11 +1,6 @@
 const Item = require("../models/clothingItems");
-
 // Import the official Sprint 15 custom error classes explicitly
-const { 
-  BadRequestError, 
-  NotFoundError, 
-  ForbiddenError 
-} = require("../utils/errors");
+const { BadRequestError, NotFoundError, ForbiddenError } = require("../errors");
 
 // ==========================================
 // 1. GET / — Fetch All Clothing Items
@@ -73,7 +68,7 @@ exports.likeItem = async (req, res, next) => {
     const updatedItem = await Item.findByIdAndUpdate(
       req.params.id,
       { $addToSet: { likes: req.user._id } },
-      { new: true },
+      { new: true }
     );
     if (!updatedItem) {
       throw new NotFoundError("Item not found");
@@ -95,7 +90,7 @@ exports.unlikeItem = async (req, res, next) => {
     const updatedItem = await Item.findByIdAndUpdate(
       req.params.id,
       { $pull: { likes: req.user._id } },
-      { new: true },
+      { new: true }
     );
     if (!updatedItem) {
       throw new NotFoundError("Item not found");

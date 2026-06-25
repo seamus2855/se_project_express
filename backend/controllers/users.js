@@ -2,14 +2,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const { JWT_SECRET } = require('../utils/config');
-
 // Import your custom Error classes explicitly to avoid mixed variable definitions
-const { 
-  BadRequestError, 
-  UnauthorizedError, 
-  NotFoundError, 
-  ConflictError 
-} = require('../utils/errors');
+const { BadRequestError, UnauthorizedError, NotFoundError, ConflictError } = require('../errors');
 
 // ==========================================
 // 1. POST /signup — Create New User Profile
@@ -20,14 +14,12 @@ exports.createUser = async (req, res, next) => {
     if (!email || !password) {
       throw new BadRequestError("Email and password are required");
     }
-
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await User.create({
       email,
       password: hashedPassword,
       ...rest,
     });
-
     const userObj = newUser.toObject();
     delete userObj.password;
     return res.status(201).json(userObj);
@@ -51,10 +43,8 @@ exports.login = async (req, res, next) => {
     if (!email || !password) {
       throw new BadRequestError('Email and password are required');
     }
-
     const user = await User.findUserByCredentials(email, password);
     const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
-
     return res.status(200).json({
       token,
       user: {
@@ -101,7 +91,6 @@ exports.updateCurrentUser = async (req, res, next) => {
       { name, avatar },
       { new: true, runValidators: true },
     ).select('-password');
-
     if (!updatedUser) {
       throw new NotFoundError('User not found');
     }
