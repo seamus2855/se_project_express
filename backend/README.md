@@ -17,16 +17,19 @@ To test the application integration locally, download or clone the code for both
 ### Running the Backend Server Locally
 
 1. Install the project dependencies:
+
 ```bash
 npm install
 ```
 
 2. Launch the production server:
+
 ```bash
 npm run start
 ```
 
 3. Launch the development server with hot-reload:
+
 ```bash
 npm run dev
 ```
