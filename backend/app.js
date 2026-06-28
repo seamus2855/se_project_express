@@ -2,8 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
+const mongoose = require("mongoose"); // Imported mongoose at the top
 const { errors } = require("celebrate");
-
 const errorHandler = require("./middlewares/errorHandler");
 const routes = require("./routes/index");
 const { requestLogMiddleware, errorLogMiddleware } = require("./middlewares/logger");
@@ -14,7 +14,7 @@ const PORT = 3001;
 // ==========================================
 // 1. WINSTON REQUEST LOGGER (MUST BE FIRST)
 // ==========================================
-app.use(requestLogMiddleware); 
+app.use(requestLogMiddleware);
 
 // ==========================================
 // 2. SECURITY & PARSING MIDDLEWARES
@@ -33,26 +33,36 @@ app.get("/crash-test", () => {
     throw new Error("Server will crash now");
   }, 0);
 });
-
 app.use(routes);
 
 // ==========================================
 // 4. CENTRAL ERROR LOGGING & HANDLING
 // ==========================================
 // Step A: Winston error logger (MUST BE BEFORE CELEBRATE & CENTRAL HANDLER)
-app.use(errorLogMiddleware); 
+app.use(errorLogMiddleware);
 
 // Step B: Celebrate validation error formatter
-app.use(errors()); 
+app.use(errors());
 
 // Step C: Centralized error handler
-app.use(errorHandler); 
+app.use(errorHandler);
 
 // ==========================================
-// 5. SERVER INITIALIZATION
+// 5. DATABASE & SERVER INITIALIZATION
 // ==========================================
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+// Establish database connection before handling requests
+mongoose
+  .connect("mongodb://127.0.0.1:27017/wtwr_db")
+  .then(() => {
+    console.log("Connected to MongoDB");
+    
+    // Start the server only after a successful DB connection
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+  });
 
 module.exports = app;
