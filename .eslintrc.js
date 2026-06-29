@@ -3,9 +3,7 @@ module.exports = {
     es2021: true,
     node: true,
   },
-
   extends: ["eslint:recommended", "airbnb-base", "prettier"],
-
   overrides: [
     {
       env: {
@@ -17,15 +15,13 @@ module.exports = {
       },
     },
   ],
-
   parserOptions: {
     ecmaVersion: "latest",
     sourceType: "module",
   },
-
   rules: {
     "no-underscore-dangle": ["error", { allow: ["_id"] }],
-    // Add the rule below to ignore the 'next' argument in middleware
-    "no-unused-vars": ["error", { "argsIgnorePattern": "next" }],
+    // FIXED: Removed quotes around the property key argsIgnorePattern
+    "no-unused-vars": ["error", { argsIgnorePattern: "next" }],
   },
 };

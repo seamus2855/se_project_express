@@ -33,12 +33,14 @@ const userSchema = new mongoose.Schema(
       select: false,
     },
   },
-  { versionKey: false }
+  { versionKey: false },
 );
 
-// STATIC METHOD — required for login 
-userSchema.statics.findUserByCredentials = async function findUserByCredentials(email, password) {
-  // FIXED: Removed the secondary duplicated code snippet from this block
+// FIXED: Explicitly named the function 'findUserByCredentials' to fix 'func-names' error
+userSchema.statics.findUserByCredentials = async function findUserByCredentials(
+  email,
+  password,
+) {
   const user = await this.findOne({ email }).select("+password");
   if (!user) {
     throw new Error("Incorrect email or password");
@@ -52,5 +54,4 @@ userSchema.statics.findUserByCredentials = async function findUserByCredentials(
   return user;
 };
 
-// FIX: Changed model name from "User" to "user" to match clothingItems schema reference
 module.exports = mongoose.model("user", userSchema);

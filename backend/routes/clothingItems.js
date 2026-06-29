@@ -19,7 +19,7 @@ router.get("/", clothingItems.getAll);
 router.post("/", auth, validateClothingItem, clothingItems.create);
 
 // Extracted via bracket notation to safely bypass JavaScript's reserved 'delete' keyword rule
-router.delete("/:id", auth, validateIdParam, clothingItems["delete"]);
+router.delete("/:id", auth, validateIdParam, clothingItems.delete);
 
 // Like / Unlike routes with parameter schema validation
 router.put("/:id/likes", auth, validateIdParam, clothingItems.likeItem);

@@ -23,8 +23,6 @@ router.use("/users", auth, usersRouter); // Protect user routes
 // ==========================================
 // 3. CATCH-ALL WILD CARD 404
 // ==========================================
-router.use((req, res, next) => {
-  return next(new NotFoundError("Requested resource not found"));
-});
+router.use((req, res, next) => next(new NotFoundError("Requested resource not found")));
 
 module.exports = router;
